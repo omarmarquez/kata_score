@@ -1,0 +1,82 @@
+<h3>Categories</h3>
+{% if eventAdmin %}
+ <div class='addRecord'  id='add_cat'  >[+ New]</div>
+{% endif %}
+{% if catlst %} 
+<form action="{{post_url}}" id="sb_form" method="post">{% csrf_token %}
+<table id='category_lst' class='sortedtable'>
+      <thead>
+        <tr>
+          <th data-sort="int">ID</th>
+          <th data-sort="string">name</th>
+          <th data-sort="string">description</th>
+          <th>operation</th>
+        </tr>
+      </thead>
+      <tbody>
+    {% for cat in catlst %}
+    <tr>
+       <td>{{ cat.id|stringformat:"04d" }}</td>       
+        <td><a href="/judokata/kata/category_scores/{{ cat.id }}/" id="imcat_{{cat.id}}" style="cursor:pointer">{{cat.name }}</a>
+        </td>
+        <td><div style='width:200px;height:60px;overflow:scroll'>{{cat.description}}</div></td>
+        <td>
+        <a href="" id="mcat_{{cat.id}}">edit</a>
+        <a href="" id="del_cat_{{cat.id}}">delete</a>
+        <input type='checkbox' name='scoreb' value='{{ cat.id }}'/>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="3">&nbsp;</td>
+        <td> <input type="submit" value="Score Board"/></td>
+    </tr>
+    </tbody>
+</table>
+</form>
+{% else %}
+<p>No new categorys are available.</p>
+{% endif %}
+
+
+<script type="text/javascript">
+ $(function(){
+    
+    $("#category_lst").stupidtable();
+    $("#category_lst").bind('aftertablesort', sorted_arrows );
+    {% for cat in catlst %}
+        $("#del_cat_{{cat.id}}").click( function( event ) { 
+           event.preventDefault();
+           if( !confirm( 'Are you sure?'))
+        	  return;
+           $.ajax( "/judokata/kata/category_del/{{cat.event_id}}/{{cat.id}}/" )
+            .done( function( data ){ $("#category_list").html( data ); } );
+         });   
+        $("#mcat_{{cat.id}}").click( function( event ) { 
+        	   event.preventDefault();
+        	   refreshElement( "#record-dialog", '/judokata/kata/category_mod/{{ cat.id }}/' );
+        	   modalDialog( "#record-dialog", "#record_form" , "/judokata/kata/category_mod/{{cat.id}}/",
+        			   function(){ return true ;},
+        			   function( data ){
+        				    $("#category_list").html( data );
+        				}	   		
+        		);    	
+        	   $("#record-dialog").dialog( "open") ;
+        });
+   {% endfor %}
+
+  
+  $("#add_cat").click( function( event ) { 
+      event.preventDefault();
+      refreshElement( "#record-dialog", '/judokata/kata/category_add/{{ event_id }}/' );
+      modalDialog( "#record-dialog", "#record_form" , "/judokata/kata/category_add/{{event_id}}/",
+              function(){ return true ;},
+              function( data ){
+                    $("#category_list").html( data );
+                }         
+      );      
+      $("#record-dialog").dialog( "open") ;
+  });
+    
+ });       
+</script>

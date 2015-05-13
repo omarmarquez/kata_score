@@ -1,0 +1,30 @@
+{% extends "base.html" %} 
+{%block scripts %}
+<script type='text/javascript'>
+
+ 
+  $(function() {
+	  
+	     refreshElement( "#kata_list", '/judokata/kata/kata_lst/{{ tab.event_id }}/{{tab.id}}/' );
+	     refreshElement( "#mat_status", '/judokata/kata/table_status/{{tab.id}}/' );
+	      
+              
+ });
+  
+</script>
+
+{% endblock %}
+{% block content %} 
+<h2><a href="/judokata/kata/event/{{ tab.event_id }}/">{{tab.event.event_name}}</a> : {{tab.table_name}}</h2>
+<div style='float: left'>
+	<div style='float: left' id='category_list'></div>
+	<br />
+	<div style='float: left' id='table_list'></div>
+
+</div>
+<div style='float: left' id='kata_list'></div>
+<div style='float: left' id='mat_status'>&nbsp;</div>
+
+
+<div id="record-dialog"></div>
+{% endblock %}

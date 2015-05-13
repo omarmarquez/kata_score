@@ -1,0 +1,95 @@
+<h3>Katas</h3>
+{% if not tab_id %}
+{% if eventAdmin %}
+ <div class='addRecord'><a id='add_kata' >[+ New]</a></div>
+{% endif %}{%endif%}
+ {% if katalst %}
+<table id='kata_lst' class='sortedtable'>
+      <thead>
+        <tr>
+          <th data-sort="int">ID</th>
+          <th data-sort="string">Category</th>
+         <th data-sort="string">Kata</th>
+         <th data-sort="string">Table/Mat</th>
+         <th data-sort="float">Score</th>
+          <th>operation</th>
+      </tr>
+      </thead>
+      <tbody>
+    {% for ke in katalst %}
+    <tr>
+       <td>{{ ke.id|stringformat:"04d" }}</td>
+        <td><a href="/judokata/kata/category_scores/{{ke.category_id}}/" id="ncat_scores_{{ke.category_id}}" style="cursor:pointer">{{ke.category.name }}</a>
+        <td><a href="/judokata/kata/kview/{{ ke.id }}/" id="scores_{{ke.id}}" style="cursor:pointer">{{ke }}</a>
+        </td>
+        <td>{{ke.event_table.table_name}}</td>
+         <td>{{ke.total_score}}</td>
+        <td>
+        {% if tab_id %}
+            <a href="" id="sel_ke_{{ke.id}}">select</a>
+        {% else %}
+            <a href="" id="mkat_{{ke.id}}">edit</a>        
+            <a href="" id="del_ke_{{ke.id}}">delete</a>        
+        {%endif%}
+        </td>    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+<p>No new katas are available.</p>
+{% endif %}
+<script type="text/javascript">
+    $(function(){
+   
+            $("#kata_lst").stupidtable();
+            $("#kata_lst").bind('aftertablesort', sorted_arrows );
+            
+            {% for ke in katalst %}
+
+            $("#cat_scores_{{ke.category_id}}").click( function( event ) { kview( event, '/judokata/kata/category_scores/{{ ke.category_id }}/' )} );     
+            $("#scores_{{ke.id}}").click( function( event ) { kview( event, '/judokata/kata/kata_scores/{{ ke.id }}/' )} );     
+            $("#katae_{{ke.id}}").click( function( event ) { kview( event, '/judokata/kata/kview/{{ ke.id }}/' )} );     
+
+            $("#sel_ke_{{ke.id}}").click( function( event ) { 
+                event.preventDefault();
+                if( !confirm( 'Are you sure?'))
+                   return;
+                $.ajax( "/judokata/kata/kata_sel/{{ke.id}}/" )
+                 .done( function( data ){ $("#mat_status").html( data ); } );
+              }); 
+
+            $("#del_ke_{{ke.id}}").click( function( event ) { 
+                event.preventDefault();
+                if( !confirm( 'Are you sure?'))
+                   return;
+                $.ajax( "/judokata/kata/kata_del/{{ke.id}}/" )
+                 .done( function( data ){ $("#kata_list").html( data ); } );
+              }); 
+
+            $("#mkat_{{ke.id}}").click( function( event ) { 
+                event.preventDefault();
+                refreshElement( "#record-dialog", '/judokata/kata/kata_mod/{{ ke.id }}/' );
+                modalDialog( "#record-dialog", "#record_form" , "/judokata/kata/kata_mod/{{ke.id}}/",
+                        function(){ return true ;},
+                        function( data ){
+                             $("#kata_list").html( data );
+                         }           
+                 );      
+                $("#record-dialog").dialog( "open") ;
+         });
+            {% endfor %}
+            $("#add_kata").click( function( event ) { 
+                event.preventDefault();
+                refreshElement( "#record-dialog", '/judokata/kata/kata_add/{{ event_id }}/' );
+                modalDialog( "#record-dialog", "#record_form" , "/judokata/kata/kata_add/{{event_id}}/",
+                        function(){ return true ;},
+                        function( data ){
+                              $("#kata_list").html( data );
+                          }         
+                );      
+                $("#record-dialog").dialog( "open") ;
+            });           
+            
+    });       
+    </script>

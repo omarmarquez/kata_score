@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Kata Scoring System{% endblock %}</title>
+
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/styles.css" />
+
+    
+    <link href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+    <script src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.form.js"></script>
+    <script src="{{ STATIC_URL }}js/stupidtable.min.js"></script>
+
+    <script type="text/javascript">
+    function sorted_arrows(event, data) {
+        // data.column - the index of the column sorted after a click
+        // data.direction - the sorting direction (either asc or desc)
+        var th = $(this).find("th");
+        th.find(".arrow").remove();
+        var arrow = data.direction === "asc" ? "↑" : "↓";
+        th.eq(data.column).append('<span class="arrow">' + arrow +'</span>');
+    }
+    
+    function  kview( event , eurl ) {
+       event.preventDefault();
+       event_cascade = false;
+       $("#indicator").show();
+       $.ajax({
+               type: "GET",
+                 url: eurl ,
+                 data: '',
+                 success: function( data ){
+                     $('#pop_content').html(data);
+                     $("#indicator").hide();
+                     $('#pop_frame').show();
+                 },
+                 dataType: 'html'  
+       });     
+     }
+    
+    function refreshElement( div_id , view_url){
+        $("#indicator").show();
+        $.ajax({
+            type : "GET",
+            url : view_url ,
+            data : '',
+            success : function(data) {
+            $( div_id ).html(data);
+             },
+            dataType : 'html'
+        });
+        $("#indicator").hide();
+    }
+    
+   function modalDialog( div_id, form_id, post_url , validate_func, success_func ){
+	   $( div_id  ).dialog({
+		    autoOpen: false,
+		    height: 300,
+		    width: 350,
+		    modal: true,
+		    buttons: {
+		      "Submit": function() {
+		    	  
+		        var bValid = validate_func();
+		 
+		        if ( bValid ) {
+		          
+		          $.post( post_url, $( form_id ).serialize(), success_func );
+		          $( this ).dialog( "close" );
+		          
+		        }
+		      },
+		      Cancel: function() {
+		        $( this ).dialog( "close" );
+		      }
+		    },
+		    close: function() {
+		      //allFields.val( "" ).removeClass( "ui-state-error" );
+		    }
+		  });
+   }
+    </script>
+    
+{%block scripts %}{% endblock %}
+</head>
+
+<body>
+&nbsp;
+<div id='indicator' class='indicator'><img src="{{ STATIC_URL }}img/ajax-loader.gif" /></div> 
+&nbsp;
+<div id='status_cont'>
+    <div id='status'></div> 
+</div>
+<div id='pop_frame'>  
+    <div id='pop_content'></div> 
+</div>
+    <div id="topbar">
+		{% block sidebar %}
+		<dl class='menu-nav'>
+			<dd style="float: left">
+				<a href="/judokata/home/" alt="Home"> <img
+					src="{{ STATIC_URL }}img/Judo.gif" width="130" height="70" />
+				</a>
+
+			</dd>
+			<dd>
+				<div style="float: right;">
+					{% if user.is_authenticated %} <a
+						href="/judokata/admin/auth/user/{{user.id}}/">
+						{{ user.first_name }} {{ user.last_name }}</a> <a href="/judokata/logout/">Logout</a>
+					{% else %} <a href="/judokata/login/?next=/judokata/home/">Login</a> {% endif %} <a
+						href="/judokata/admin/kata/event/" target="admin">Admin</a>
+				</div>
+
+
+				<form method="post" action="/judokata/kata/">
+					{% csrf_token %}
+					<table>
+						<tr>
+							<td><input id="search_exp" name="search_exp" type="text"
+								size="80" value="{{ search_exp }}" /></td>
+							<td><input type="submit" value='lookup' /></td>
+						</tr>
+					</table>
+				</form>
+			</dd>
+
+		</dl>
+
+		<table class='layout-grid'>
+        <tr>
+        <td class='left-nav'>
+    </td>
+    </tr>
+    </table>
+        {% endblock %}
+   
+     </div>
+
+<table class='list'><tr >
+    <td>
+
+    <td>
+     <div id="content" width="100%">
+        {% block content %}{% endblock %}
+    </div>
+    </td>
+    <td>
+    <div id="sidebar2">
+        {% block sidebar2 %}{% endblock %}
+    </div>
+    </td>
+ </tr>
+ </table>
+</body>
+</html>
+ <script type="text/javascript">
+ $('#showlnk').click( function(){ $('#status').show(); });
+ $('#hidelnk').click( function(){ $('#status').hide(); });
+</script>

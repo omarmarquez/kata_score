@@ -1,0 +1,128 @@
+{% extends "base_ajax.html" %} 
+{% load getitem  %}
+% load getitem2  %}
+{%block scripts %}
+<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/styles.css" />
+
+<style>
+
+.tori, .uke{
+    display: none;
+}
+.total{
+    font-size:  110%;
+}
+
+#scores td{
+    text-align: right;
+}
+</style>
+<script type='textx/javascript'>
+  function approve_scores( exec_id ) {
+        $.ajax( "/judokata/kata/approve_scores/" + exec_id +"/" )
+                 .done( function( data ){ $("#pop_content").html( data ); 
+        });
+  };
+
+  $(function() {
+             $("#scores").stupidtable();
+             $("#scores").bind('aftertablesort', sorted_arrows );
+
+             $("#tori").click( function( event ){  event.preventDefault(); $(".tori").toggle() ; });
+             $("#uke").click( function( event ){  event.preventDefault(); $(".uke").toggle() ; });
+
+             
+  });
+  
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<a href="#" id='tori'>tori</a>
+<a href="#" id='uke'>uke</a>
+
+{% for ke in ke_lst %}
+ {% with ke.kata as kata %}
+  {% with ke.scores as scores %}
+   {% with ke.techniques as techniques %}
+    {% with ke.totals as totals %}
+     {% with ke.judges as judges %}
+<h2>Scores:{{ kata }}</h2>
+<div id='techniques'>
+
+    <table id='scores'>
+      <thead>
+        <tr>
+            <th data-sort="string">Judge</th>
+            {% for tec in techniques %}
+            <th><div class='rotate45'>{{tec.tech_name}}</div></th>
+            {% endfor %}    
+            <th data-sort="float">Total</th>    
+        </tr>
+      </thead>
+      <tbody>
+      {% for j in judges %}
+        {% with jid=j.id|stringformat:"s" %}
+              <tr>
+            <td>{{j.first_name}}&nbsp;{{j.last_name}}</td>
+            {% for tec in techniques %}
+
+              {% with tid=tec.id|stringformat:"s" %}
+              {% with jid|add:","|add:tid as ks %}
+                {%with scores|getitem2:ks as score %}
+                    <td>
+                        <div class='tori'>{{score.0}}</div>
+                        <div class='uke'> {{score.1}}</div>
+                        <div class='total'> {{score.2}}</div>
+                    </td>
+                {% endwith %}
+               {% endwith %}
+               {% endwith %}
+            {% endfor %}
+                   <td>
+                        <div class='tori'><b>tori</b></div>
+                        <div class='uke'><b>uke</b></div>
+                        <div class='total'> {{totals|getitem:j.id|floatformat:2}}</div>
+                    </td>
+            
+        </tr>
+       {% endwith %}
+      {%endfor%}      
+      <tr>
+        <td>&nbsp;</td>
+         {% for tec in techniques %}<td>&nbsp;</td>{%endfor%}  
+            <td>
+              <div class='total'> {{kata.total_score}}</div>
+            </td>
+         
+      </tr>
+      </tbody>
+    
+    </table>
+    
+</div>    
+     
+     {% endwith %}
+    {% endwith %}
+   {% endwith %}
+  {% endwith %}
+  
+
+  {% if eventAdmin %}
+    {% if event.scoring_review  %}
+        {% if not kata.scores_approved %}
+        <a href='#' 
+        onclick='javascript:if( confirm( "Approve current scores for {{kata}}" )){ approve_scores( {{kata.id}} ); 
+            }else{ return false; }'
+        >[[ Aprove Scores ]]</a>
+        {% endif %}
+    {% endif %}
+  {% endif %}   
+  
+ {% endwith %}  
+{%endfor%} 
+
+{% endblock %}

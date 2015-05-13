@@ -1,0 +1,12 @@
+<div id="tv_{{vid.id}}">Loading the player...</div>
+
+<script type="text/javascript">
+    jwplayer("tv_{{vid.id}}").setup({
+        file: "{{MEDIA_URL}}{{vid.video}}",
+        image: "{{STATIC_URL}}img/play-icon-blue.png",
+        width: 640,
+        height: 360,
+        autostart: true,
+        fallback: true
+    });
+</script>

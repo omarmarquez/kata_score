@@ -1,0 +1,89 @@
+<style>
+.sortedtable a{
+    margin-right: 12px;
+    }
+</style>
+<h3>Tables/Mats</h3>
+{% if eventAdmin %}
+ <div class='addRecord'  id='add_tab'  >[+ New]</div>
+{% endif %}
+{% if tablelst %} 
+<table id='table_lst' class='sortedtable'>
+      <thead>
+        <tr>
+          <th data-sort="int">ID</th>
+          <th data-sort="string">name</th>
+          <th data-sort="string">location</th>
+          <th>operation</th>
+        </tr>
+      </thead>
+      <tbody>
+    {% for tab in tablelst %}
+    <tr>
+       <td>{{ tab.id|stringformat:"04d" }}</td>
+        <td><a href="" id="opentab_{{tab.id}}" style="cursor:pointer">{{tab.table_name }}</a>
+        </td>
+        <td> {{tab.table_location}} </td>
+        <td>
+            {% if eventJudge %}
+            <a href="/judokata/kata/table_score/{{ tab.id }}/{{tab.current_execution}}/" id="score_tab_{{tab.id}}">scoring</a>
+            {% endif %}
+            {% if eventAdmin %}
+            <a href="/judokata/kata/table/{{ tab.id }}/" id="control_tab_{{tab.id}}">control</a>
+            <a href="" id="mtab_{{tab.id}}">edit</a>
+            <a href="" id="del_tab_{{tab.id}}">delete</a>
+            {% endif %}
+
+            
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No new tables are available.</p>
+{% endif %}
+
+
+<script type="text/javascript">
+ $(function(){
+    
+    $("#table_lst").stupidtable();
+    $("#table_lst").bind('aftertablesort', sorted_arrows );
+    {% for tab in tablelst %}
+        $("#del_tab_{{tab.id}}").click( function( event ) { 
+           event.preventDefault();
+           if( !confirm( 'Are you sure?'))
+              return;
+           $.ajax( "/judokata/kata/table_del/{{tab.event_id}}/{{tab.id}}/" )
+            .done( function( data ){ $("#table_list").html( data ); } );
+         });   
+        $("#score_tab_{{tab.id}}").click( function( event ) { kview( event, "/judokata/kata/table_score/{{ tab.id }}/{{tab.current_execution}}/" ) });
+        $("#mtab_{{tab.id}}").click( function( event ) { 
+            	               event.preventDefault();
+               refreshElement( "#record-dialog", '/judokata/kata/table_mod/{{ tab.id }}/' );
+               modalDialog( "#record-dialog", "#record_form" , "/judokata/kata/table_mod/{{tab.id}}/",
+                       function(){ return true ;},
+                       function( data ){
+                            $("#table_list").html( data );
+                        }           
+                );      
+               $("#record-dialog").dialog( "open") ;
+        });
+   {% endfor %}
+
+  
+  $("#add_tab").click( function( event ) { 
+      event.preventDefault();
+      refreshElement( "#record-dialog", '/judokata/kata/table_add/{{ event_id }}/' );
+      modalDialog( "#record-dialog", "#record_form" , "/judokata/kata/table_add/{{event_id}}/",
+              function(){ return true ;},
+              function( data ){
+                    $("#table_list").html( data );
+                }         
+      );      
+      $("#record-dialog").dialog( "open") ;
+  });
+    
+ });       
+</script>

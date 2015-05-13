@@ -1,0 +1,52 @@
+{% extends "base_ajax.html" %} 
+{% load getitem  %}
+{%block scripts %}
+<script type='textx/javascript'>
+  $(function() {
+    $( "#clst" ).accordion({
+      // event: "click hoverintent"
+        heightStyle: "content"
+    });
+  });
+  
+ 
+</script>
+{% endblock %}
+
+
+{% block content %}
+<h2>{{ kexec }}</h2>
+<div id='clst'>
+    {% for crtq in critiques %}
+        <h3> {{crtq.id|stringformat:"04d"}}: {{crtq.user.first_name}}  {{crtq.user.last_name}}
+        <br/> {{crtq.updated}} :{{ crtq.language}}</h3>
+        <div>
+         <div id="crit_{{crtq.id}}">
+          
+           <img src="{{STATIC_URL}}img/play-icon-blue.png" id="vcrit_{{crtq.id}}" width="100" height="100"  style="cursor:pointer;"/>
+           <script type="text/javascript">
+           (function() {
+               $("#vcrit_{{crtq.id}}").click( function( event ){
+               $("#indicator_{{vid.id}}").show();
+               $.ajax({
+                       type: "GET",
+                         url: '/judokata/kata/critique_video/{{ crtq.id }}/',
+                         data: '',
+                       //  success: function( data ){ $("#tec_video_{{kexec.id}}_{{tec.id}}").html=data ; },
+                         dataType: 'html'  
+               }).done( function (data){ $("#crit_{{crtq.id}}").html( data) ; })
+               $("#indicator_{{vid.id}}").hide(); 
+               })
+           })();     
+           </script>
+        
+        
+        </div>
+
+        
+        </div>
+    
+    {%endfor%}
+</div>
+
+{% endblock %}

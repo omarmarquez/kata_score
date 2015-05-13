@@ -1,0 +1,89 @@
+{% extends "base_ajax.html" %} 
+{%block scripts %}
+<script type='text/javascript'>
+
+ 
+  $(function() {
+      
+         //refreshElement( "#kata_list", '/judokata/kata/kata_lst/{{ tab.event_id }}/{{tab.id}}/' );
+        // refreshElement( "#mat_status", '/judokata/kata/table_status/{{tab.id}}/' );
+	  $( "#slide-tori" ).slider({
+		  value:3,
+		  min: 0,
+		  max: 5,
+		  step: .50,
+		  slide: function( event, ui ) {
+			    $( "#id_tori" ).val(   ui.value );
+		  }
+	   });
+	   $( "#id_tori" ).val(   $( "#slide-tori" ).slider( "value" ) );    
+	   $( "#slide-uke" ).slider({
+	          value:3,
+	          min: 0,
+	          max: 5,
+	          step: .50,
+	          slide: function( event, ui ) {
+	                $( "#id_uke" ).val(   ui.value );
+	          }
+	       });
+	       $( "#id_uke" ).val(   $( "#slide-tori" ).slider( "value" ) );    
+              
+ });
+  
+</script>
+<style>
+.scoring td input  {
+    font-size: 250%;
+}
+</style>
+
+{% endblock %}
+{% block content %}
+<h2>
+	<a href="/judokata/kata/event/{{ mat.event_id }}/">{{mat.event.event_name}}</a>
+	: {{mat.table_name}}
+</h2>
+
+
+<div style='width: 1000px; text-align: center;'>
+	<div
+		style='width: 70%; text-align: left; margin: 0px auto; padding: 15px; font-size: 200%;'>
+		<h3>Scoring</h3>
+		<h4>{{kata}}</h4>
+		<h4>{{technique}}</h4>
+
+    <div style='float: left'>   
+    
+    {% for t in techlst %}
+        <br/><a href="{{post_url}}" id="jump_{{t.id}}">{{t}}</a>
+    {% endfor %}
+    </div>
+    <div style='float: left'>
+
+		<form action="{{post_url}}" id="record_form" method="post">
+			{% csrf_token %} <input type="hidden" name="technique_id" id="technique_id"
+				value="{{technique.id}}" />
+			<table class='scoring'>
+				{{ form.as_table }}
+                <tr>
+                    <td><label>Tori</label></td>
+                    <td><div id="slide-tori"></div></td>
+                </tr>
+                <tr>
+                    <td><label>Uke</label></td>
+                    <td><div id="slide-uke"></div></td>
+                </tr>
+				<tr>
+					<td colspan='2'><input name="submit" type="submit"
+						value='submit' /><input type="reset" />
+					</td>
+				</tr>
+
+			</table>
+		</form>
+	</div>
+	   </div>
+</div>
+
+
+{% endblock %}

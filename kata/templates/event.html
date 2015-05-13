@@ -1,0 +1,28 @@
+{% extends "base.html" %} 
+{%block scripts %}
+<script type='text/javascript'>
+  $(function() {
+	  
+      refreshElement( "#category_list", '/judokata/kata/category_lst/{{ event.id }}/' );
+      refreshElement( "#table_list", '/judokata/kata/table_lst/{{ event.id }}/' );
+      refreshElement( "#kata_list", '/judokata/kata/kata_lst/{{ event.id }}/' );
+  
+              
+ });  
+</script>
+<script type="text/javascript" src="{{ STATIC_URL }}js//jwplayer/jwplayer.js"></script>
+{% endblock %}
+{% block content %} 
+<h2><a href="/judokata/kata/event/{{ event.id }}/">{{event.event_name}}</a></h2>
+<h3><a href="/judokata/kata/score_board/{{event.id}}/">Score Board</a></h3>
+<div style='float: left'>
+	<div style='float: left' id='category_list'></div>
+	<br />
+	<div style='float: left' id='table_list'></div>
+
+</div>
+<div style='float: left; width: 20px'>&nbsp;</div>
+<div style='float: left' id='kata_list'></div>
+
+<div id="record-dialog"></div>
+{% endblock %}

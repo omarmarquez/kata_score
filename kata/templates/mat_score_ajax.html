@@ -1,0 +1,169 @@
+{% extends "base_ajax.html" %} 
+{%block scripts %}
+<script type='text/javascript'>
+
+  function validate_score( score ){
+	  
+	  if( !score || isNaN( score ) || score < 0  || score > 10  ){
+		  alert( score + " is not a valid score");
+		  return false;
+	  }
+	  return true;
+  }
+  $(function() {
+      
+         //refreshElement( "#kata_list", '/judokata/kata/kata_lst/{{ tab.event_id }}/{{tab.id}}/' );
+        // refreshElement( "#mat_status", '/judokata/kata/table_status/{{tab.id}}/' );
+      $(".tscore").css( "background-color", "#ccc");
+      $(".uscore").css( "background-color", "#ccc");
+	  $( "#slide-tori" ).slider({
+		  value:3,
+		  min: 0,
+		  max: 5,
+		  step: .50,
+		  slide: function( event, ui ) {
+			    $( "#id_tori" ).val(   ui.value );
+		  }
+	   });
+	   $( "#id_tori" ).val(   $( "#slide-tori" ).slider( "value" ) );    
+	   $( "#slide-uke" ).slider({
+	          value:3,
+	          min: 0,
+	          max: 5,
+	          step: .50,
+	          slide: function( event, ui ) {
+	                $( "#id_uke" ).val(   ui.value );
+	          }
+	       });
+	       $( "#id_uke" ).val(   $( "#slide-tori" ).slider( "value" ) );    
+	       
+	     $( "#score_form" ).on( "submit", function( event ) {
+	    	   event.preventDefault();
+	    	   if( ! validate_score( $( "#id_score" ).val() ) ){
+	    		   return false;
+	    	   }
+	    	   $("#indicator").show();
+               $.post( "{{post_url}}", $( "#score_form" ).serialize(), 
+            	  function( data ){
+            	    $('#pop_content').html(data);
+                    $("#indicator").hide();
+                    }
+            		   
+               );
+
+	    	 });
+	     {% if video %}
+         $("#indicator_{{video.id}}").show();
+         $.ajax({
+                 type: "GET",
+                   url: '/judokata/kata/tech_video/{{ video.id }}/',
+                   data: '',
+                   dataType: 'html'  
+         }).done( function (data){ $("#tvideo_{{video.id}}").html(data) ; })
+         $("#indicator_{{video.id}}").hide(); 
+
+	     {% endif %}
+	     {% for t in techlst %} 
+         $("#jump_{{t.id}}").click( function( event ) { 
+             event.preventDefault();
+             if( !confirm( 'Change Technique Order. Are you sure?'))
+                return;
+             kview( event, "/judokata/kata/table_score/{{ mat.id }}/{{mat.current_execution}}/{{t.id}}/" ) ;
+           }); 
+	     {%endfor%}
+	     
+         $(".tscore").click( function( event ){
+             $(".tscore").css( "background-color", "#ccc");
+             $( this ).css( "background-color",  "#fff") ;
+             $("#id_tori").val(  $( this ).val() );
+             $("#id_score").val(  parseFloat(  $("#id_tori").val() ) +parseFloat( $("#id_uke").val())  );
+         } );
+         $(".uscore").click( function( event ){
+              $(".uscore").css( "background-color", "#ccc");
+
+             $( this ).css( "background-color",  "#fff") ;
+             $("#id_uke").val(  $( this ).val() );
+             $("#id_score").val(  parseFloat(  $("#id_tori").val() ) +parseFloat( $("#id_uke").val())  );
+         } );
+              
+ });
+  
+</script>
+<style>
+.ui-widget-content { border: 1px solid #ccc; background: #ff9900; color: #222222; }
+.scoring td input  { font-size: 150%; }
+</style>
+
+{% endblock %}
+{% block content %}
+<h2>
+	<a href="/judokata/kata/event/{{ mat.event_id }}/">{{mat.event.event_name}}</a>
+	: {{mat.table_name}}
+</h2>
+
+
+<div style='width: 1000px; text-align: center;'>
+	<div style='width: 90%; text-align: left; margin: 0px auto; padding: 15px; vertical-align: top;'>
+		<h3>Scoring</h3>
+		<h4>{{kata}}</h4>
+           <table >
+           <thead>
+            <tr>
+            <th colspan="2">Technique</th>
+            <th>Tori</th>
+            <th>Uke </th>
+            <th>Score</th>
+            </tr>
+           </thead>
+           <tbodY>
+           <tr>
+           <td style='vertical-align: top;'>
+           {% if video %}
+            <div id='indicator_{{video.id}}' class='indicator'><img src="{{ STATIC_URL }}img/ajax-loader.gif" /></div> 
+           <div class='tec_video' id='tvideo_{{video.id}}' style='float:left; max-width: 600; height: 370'>
+ 
+           <img src="{{STATIC_URL}}img/play-icon-blue.png" id="techplay_{{video.id}}" width="100" height="100"  style="cursor:pointer;"/>
+    
+            </div>
+            {% endif %}
+            </td>
+     <td style='vertical-align: top;'>
+     {% for t in techlst %}   
+        <br/>{% if technique.id != t.id %}
+            <a href="{{post_url}}" id="jump_{{t.id}}">{{t}}</a>
+            {% else %}
+            <b>{{t}}</b>
+            {% endif %}
+    {% endfor %}
+     </td>
+    <td style='vertical-align: top;'>
+        {% for s in pscores %}
+            <input type="button" class='tscore' id='tsbtn_{{s}}' value="{{s}}" /><br>
+        {% endfor %}
+    </td>
+    <td style='vertical-align: top;'>
+        {% for s in pscores %}
+            <input type="button" class='uscore' id='usbtn_{{s}}' value="{{s}}" /><br>
+        {% endfor %}
+    </td>
+    <td style='vertical-align: top;'>
+  
+		<form action="{{post_url}}" id="score_form" method="post">
+			{% csrf_token %} 
+            <input type="hidden" name="technique_id" id="technique_id"  value="{{technique.id}}" />
+            <input type="hidden" name="tori" id="id_tori"  value="5.0" />
+            <input type="hidden" name="uke" id="id_uke"  value="5.0" />
+			<input type="text" id="id_score" value="" name="id_score" size="5" />
+			<br>
+			<input name="submit" type="submit"  value='submit' />
+
+
+		</form>
+ 
+	</td>
+	</tr></tbodY></table>
+	   </div>
+</div>
+
+
+{% endblock %}

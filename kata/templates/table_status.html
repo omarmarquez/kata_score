@@ -1,0 +1,42 @@
+{%block scripts %}
+<script type="text/javascript">
+
+$(function(){
+    $("#prev").click( function( event ){
+    	event.preventDefault();
+        refreshElement( "#mat_status", '/judokata/kata/table_status/{{mat.id}}/-1/' );
+      });
+    $("#next").click( function( event ){
+    	event.preventDefault();
+        refreshElement( "#mat_status", '/judokata/kata/table_status/{{mat.id}}/1/' );
+ });
+});
+</script>
+{% endblock %}
+
+
+
+<div style="text-align:left;padding:10px;">
+
+ 
+<h3>Current Status</h3>
+
+
+<p>Kata: {{kata}}<br/>
+<table>
+    <tr>
+    <th>Prev</th>
+	<th>Current</th>
+	<th>Next</th>
+   </tr>
+    <tr>
+        <td>{% if prev %}<a href='/judokata/kata/table_status/{{mat.id}}/' id='prev'><< {{prev}}</a>{% endif %}</td>
+        <td><h4>{{technique}}</h4></td>
+        <td>{% if next %}<a href='/judokata/kata/table_status/{{mat.id}}/' id='next'>>> {{next}}</a>{% endif %}</td>
+    </tr>
+</table>
+
+<form action="{{post_url}}" id="record_form" method="post">{% csrf_token %}
+
+
+</div>

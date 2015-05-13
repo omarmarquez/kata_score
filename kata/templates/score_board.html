@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Kata Event{% endblock %}</title>
+
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/styles.css" />
+
+    
+     <script src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
+
+    <script type='text/javascript'>
+    
+    function timedRefresh( timeout ){
+    	
+    	setTimeout("location.reload(true);", timeout );
+    };
+ 
+    $(function() {  
+	  
+    	timedRefresh( 10 * 1000 );
+    });
+    
+    </script>
+    
+    <style>
+        #sbcontent td,th {
+            font-size: 200%;
+        }
+    </style>
+</head>
+
+<body onload="">
+
+    <div id="sbcontent"  >
+    
+        <table id='kata_lst' class='sortedtable'>
+      {% for cat in catlst %}
+      <thead>
+        <tr>
+          <th data-sort="string" style="text-align: left;">{{cat.name}}</th>
+         <th data-sort="string">Table/Mat</th>
+         <th data-sort="float">Score</th>
+       </tr>
+      </thead>
+      <tbody>
+    {% for ke in cat.katalst %}
+    <tr>
+        <td><a href="/judokata/kata/kview/{{ ke.id }}/" id="scores_{{ke.id}}" style="cursor:pointer">{{ke }}</a>
+        </td>
+        <td>{{ke.event_table.table_name}}</td>
+         <td>{{ke.total_score}}</td>
+   </tr>
+    {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+
+    </div>
+</body>
+</html>

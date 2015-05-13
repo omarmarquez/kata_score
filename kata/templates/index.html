@@ -1,0 +1,79 @@
+{% extends "base.html" %} 
+{% block content %} 
+
+<div style='float:left'>
+<h3>Latest Katas:</h3>
+ {% if ke_list %}
+<table id='kata_lst' class='sortedtable'>
+      <thead>
+        <tr>
+          <th data-sort="int">ID</th>
+          <th data-sort="string">Kata</th>
+         <th data-sort="float">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for ke in ke_list %}
+	<tr>
+	   <td>{{ ke.id|stringformat:"04d" }}</td>
+		<td><a hrefa="/judokata/kata/kview/{{ ke.id }}/" id="ke_{{ke.id}}" style="cursor:pointer">{{ke }}</a>
+		</td>
+		<td>{{ke.total_score}}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script type="text/javascript">
+    $(function(){
+    	
+    
+    {% for ke in ke_list %}
+    $("#ke_{{ke.id}}").click( function( event ) { kview( event, '/judokata/kata/kview/{{ ke.id }}/' )} );     
+
+    {% endfor %}
+    
+    $("#kata_lst").stupidtable();
+    $("#kata_lst").bind('aftertablesort', sorted_arrows );
+    });       
+    </script>
+{% else %}
+<p>No new katas are available.</p>
+{% endif %}
+</div>
+
+<div style='float:left; width:20px'>&nbsp;</div>
+<div style='float:left'>
+<h3>Events</h3>
+{% if event_list %}
+<table id='event_lst' class='sortedtable'>
+      <thead>
+        <tr>
+          <th data-sort="string">Date</th>
+          <th data-sort="string">Name</th>
+         <th data-sort="string">Location</th>
+        </tr>
+      </thead>
+      <tbody>
+    {% for event in event_list %}
+    <tr>
+       <td>{{event.event_date }}</td>
+        <td><a href="/judokata/kata/event/{{ event.id }}/" id="evt_{{event.id}}" style="cursor:pointer">{{event.event_name }}</a>
+        </td>
+        <td>{{event.event_location}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<script type="text/javascript">
+    $(function(){
+    
+    $("#event_lst").stupidtable();
+    $("#event_lst").bind('aftertablesort', sorted_arrows );
+    });       
+    </script>
+{% else %}
+<p>No new events are available.</p>
+{% endif %}
+</div>
+
+ {% endblock %}

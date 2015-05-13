@@ -1,0 +1,160 @@
+{% extends "base_ajax.html" %} 
+{% load getitem  %}
+{%block scripts %}
+<script type='textx/javascript'>
+  $(function() {
+    $( "#techniques" ).tabs();
+  });
+  
+ 
+</script>
+<script type="text/javascript" src="{{ STATIC_URL }}js//jwplayer/jwplayer.js"></script>
+<style>
+.progress { position:relative; width:200px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
+.bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
+.percent { position:absolute; display:inline-block; top:3px; left:48%; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<h2>{{ kexec }}</h2>
+<div id='techniques'>
+	<ul>
+		{% for tec in techlst %}
+		<li><a href='#tech_{{forloop.counter0}}'>{{tec.tech_name }}</a></li>
+
+		{% endfor %}
+	</ul>
+	{% for tec in techlst %}
+	<div id="tech_{{forloop.counter0}}">
+	   {{tec.tech_description }} 
+           <br/>
+          {%with vidlst|getitem:tec.id as vid %} 
+           <div class='tec_video' id='tec_video_{{kexec.id}}_{{tec.id}}' style='float:left; width: 650; height: 370'>
+           
+	       {% if vid %}
+            <div id='indicator_{{vid.id}}' class='indicator'><img src="{{ STATIC_URL }}img/ajax-loader.gif" /></div> 
+        
+	       <img src="{{STATIC_URL}}img/play-icon-blue.png" id="techplay_{{vid.id}}" width="100" height="100"  style="cursor:pointer;"/>
+	       <script type="text/javascript">
+           (function() {
+        	   $("#techplay_{{vid.id}}").click( function( event ){
+        	   $("#indicator_{{vid.id}}").show();
+               $.ajax({
+                       type: "GET",
+                         url: '/judokata/kata/tech_video/{{ vid.id }}/',
+                         data: '',
+                       //  success: function( data ){ $("#tec_video_{{kexec.id}}_{{tec.id}}").html=data ; },
+                         dataType: 'html'  
+               }).done( function (data){ $("#tec_video_{{kexec.id}}_{{tec.id}}").html(data) ; })
+               $("#indicator_{{vid.id}}").hide(); 
+        	   })
+           })();     
+	       </script>
+	       
+       {% else %}
+                <form id='vform_{{kexec.id}}_{{tec.id}}' name='vform'
+                    enctype="multipart/form-data"  
+                    action="/judokata/kata/vupload/{{kexec.id}}/{{tec.id}}/" method='POST'>
+                     <input type='file' name='video' id='if_{{kexec.id}}_{{tec.id}}'>
+                    <input type="submit" value='upload video' id='bttn_{{kexec.id}}_{{tec.id}}'   >
+                   {% csrf_token %}
+                    
+                </form>
+                <div class="progress">
+                    <div id="bar_{{kexec.id}}_{{tec.id}}" class="bar"></div >
+                    <div id="percent_{{kexec.id}}_{{tec.id}}" class="percent">0%</div >
+                </div>
+    
+                <div id="status_{{kexec.id}}_{{tec.id}}"></div>                
+       {% endif %}              
+
+         </div>
+         
+           {% if vid %}
+         
+            <div class="critiques">
+           <h2>Critiques</h2>
+                <form id='vform_{{kexec.id}}_{{tec.id}}' name='vform'
+                    enctype="multipart/form-data"  
+                    action="/judokata/kata/cupload/{{vid.id}}/" method='POST'>
+                     <input type='file' name='video' id='if_{{vid.id}}'>
+                     <label>Language:</label><input type='text' name='language' value='english' size=10/>
+                    <input type="submit" value='upload critique' id='bttn_{vid.id}}'   >
+                   {% csrf_token %}
+                    
+                </form>        
+               <div class="progress">
+                    <div id="bar_{{kexec.id}}_{{tec.id}}" class="bar"></div >
+                    <div id="percent_{{kexec.id}}_{{tec.id}}" class="percent">0%</div >
+                </div>
+    
+                <div id="status_{{kexec.id}}_{{tec.id}}"></div>                
+           
+           <div id="critique_lst_{{vid.id}}">
+           </div>
+           
+           </div>           
+                   <script type='text/javascript'>
+                   (function() {
+                       // Load up Critiques
+                       $("#indicator_{{vid.id}}").show();
+                        $.ajax({
+                                    type : "GET",
+                                    url : '/judokata/kata/vcritiques/{{ vid.id }}/',
+                                    data : '',
+                                    success : function(data) {
+                                        $('#critique_lst_{{vid.id}}').html(data);
+                                    },
+                                    dataType : 'html'
+                                });
+                        $("#indicator_{{vid.id}}").hide();
+
+
+                   })();
+                   </script>
+           {% endif %}
+           
+        <script type='text/javascript'>
+  
+                (function() {
+                    var bar = $('#bar_{{kexec.id}}_{{tec.id}}');
+                    var percent = $('#percent_{{kexec.id}}_{{tec.id}}');
+                    var status = $('#status_{{kexec.id}}_{{tec.id}}');
+                       
+                    $('#vform_{{kexec.id}}_{{tec.id}}').ajaxForm({
+                        beforeSend: function() {
+                            status.empty();
+                            var percentVal = '0%';
+                            bar.width(percentVal)
+                            percent.html(percentVal);
+                        },
+                        uploadProgress: function(event, position, total, percentComplete) {
+                            var percentVal = percentComplete + '%';
+                            bar.width(percentVal)
+                            percent.html(percentVal);
+                        },
+                        success: function( data ) {
+                            var percentVal = '100%';
+                            bar.width(percentVal)
+                            percent.html(percentVal);
+                            $("#tec_video_{{kexec.id}}_{{tec.id}}").html = data ;
+                        },
+                        complete: function(xhr) {
+                            status.html(xhr.responseText);
+                        }
+                    });
+                })();
+
+								</script>        
+	   {% endwith %}
+
+	 </div>
+
+	{% endfor %}
+
+</div>
+
+
+{% endblock %}

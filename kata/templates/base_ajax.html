@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Kata Execution{% endblock %}</title>
+
+        {%block scripts %}{% endblock %}
+</head>
+
+<body>
+<div style="float:right;"><h2> <a href='#' onclick="$('#pop_frame').hide();">X</a></h2></div>
+    <div id="acontent">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
